@@ -1,0 +1,24 @@
+{
+  "name": "react-native-enhanced-listview",
+  "version": "1.0.0",
+  "description": "An enahanced ListView component",
+  "main": "listView.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robinpowered/react-native-enhanced-listview.git"
+  },
+  "keywords": [
+    "react-native",
+    "react",
+    "listview"
+  ],
+  "author": "Atticus White <contact@atticuswhite.com> (http://atticuswhite.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/robinpowered/react-native-enhanced-listview/issues"
+  },
+  "homepage": "https://github.com/robinpowered/react-native-enhanced-listview#readme"
+}
