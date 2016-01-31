@@ -5,98 +5,80 @@ import React, {
   ListView,
   StyleSheet,
   View,
-  Text,
-  NativeModules
+  Text
 } from 'react-native';
 
-import SmartListView from './smartListView';
-
-const ROW_HEIGHT = 50;
-const HEADER_HEIGHT = 20;
-
-class CustomListView extends Component {
-  static DataSource = ListView.DataSource; // backward compatable usage with ListVieww
+class SmartListView extends Component {
   constructor(props) {
     super(props);
-    var ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2,
-      sectionHeaderHasChanged: (s1, s2) => s1 !== s2
-    });
     this.state = {
-      dataSource: ds.cloneWithRowsAndSections({}),
-      currentSection: 'A'
+      sectionOffsets: {},
+      rowOffsets: {},
+      currentSection: null
     };
   }
-  componentDidMount() {
-    var sections = this.props.data.reduce((map, item) => {
-      var letter = item.slice(0, 1).toUpperCase();
-      if (!map[letter]) {
-        map[letter] = [];
-      }
-      map[letter].push(item);
-      return map;
-    }, {});
-    this.state.dataSource = this.state.dataSource.cloneWithRowsAndSections(sections);
-    this.setState(this.state);
-  }
-  componentWillReceiveProps(nextProps) {
-    if (this.state.currentSection !== nextProps.currentSection) {
-      this._listView.scrollToSection(nextProps.currentSection);
-      this.state.currentSection = nextProps.currentSection;
-      this.setState(this.state);
+  scrollToSection(sectionId) {
+    if (this.listView && this.state.sectionOffsets[sectionId]) {
+      this.listView.getScrollResponder().scrollTo(this.state.sectionOffsets[sectionId]);
     }
   }
-  renderRow(data, sectionId, rowId) {
-    return (
-      <View style={styles.row}>
-        <Text style={styles.text}>{data}</Text>
-      </View>
-    )
+  scrollToRow(sectionId, rowId) {
+    if (this.listView && this.state.rowOffsets[sectionId] && this.state.rowOffsets[sectionId][rowId]) {
+      this.listView.getScrollResponder().scrollTo(this.state.rowOffsets[sectionId][rowId]);
+    }
+  }
+  onSectionHeaderLayout(sectionId, event) {
+    this.state.sectionOffsets[sectionId] = event.nativeEvent.layout.y;
+    this.setState(this.state);
+  }
+  onRowLayout(sectionId, rowId, event) {
+    if (!this.state.rowOffsets[sectionId]) {
+      this.state.rowOffsets[sectionId] = {};
+    }
+    this.state.rowOffsets[sectionId][rowId] = event.nativeEvent.layout.y;
+    this.setState(this.state);
   }
   renderSectionHeader(sectionData, sectionId) {
-    return (
-      <View style={styles.header}>
-        <Text style={styles.headerText}>{sectionId}</Text>
-      </View>
-    )
+    return React.cloneElement(this.props.renderSectionHeader(sectionData, sectionId), {
+      onLayout: (event) => this.onSectionHeaderLayout(sectionId, event)
+    });
   }
-  render () {
-    return (
-      <SmartListView
-        style={styles.listView}
-        ref={component => this._listView = component}
-        dataSource={this.state.dataSource}
-        renderRow={this.renderRow.bind(this)}
-        renderSectionHeader={this.renderSectionHeader.bind(this)}
-        onSectionChanged={(section) => console.log('section changed', section)}
-        ></SmartListView>
-    );
+  renderRow(data, sectionId, rowId) {
+    return React.cloneElement(this.props.renderRow(data, sectionId, rowId), {
+      onLayout: (event) => this.onRowLayout(sectionId, rowId, event)
+    });
+  }
+  onScroll(event) {
+    if (this.props.onScroll) {
+      this.props.onScroll(event);
+    }
+    if (!this.props.onSectionChanged) {
+      return;
+    }
+    var offset = event.nativeEvent.contentOffset.y;
+    var section;
+
+    for (let sectionId in this.state.sectionOffsets) {
+      if (this.state.sectionOffsets[sectionId] <= offset) {
+        section = sectionId;
+      }
+    }
+    if (section && this.state.currentSection !== section) {
+      this.state.currentSection = section;
+      this.setState(this.state);
+      if (this.props.onSectionChanged) {
+        this.props.onSectionChanged(section);
+      }
+    }
+  }
+  render() {
+    return <ListView
+      {...this.props}
+      onScroll={this.onScroll.bind(this)}
+      ref={component => this.listView = component}
+      renderRow={this.renderRow.bind(this)}
+      renderSectionHeader={this.renderSectionHeader.bind(this)}/>
   }
 }
 
-const styles = StyleSheet.create({
-  listView: {
-    flex: 1,
-    marginTop: 20,
-    backgroundColor: 'red'
-  },
-  row: {
-    height: ROW_HEIGHT,
-    backgroundColor: 'gray',
-    justifyContent: 'center'
-  },
-  text: {
-    color: 'black',
-    fontSize: 14
-  },
-  header: {
-    height: HEADER_HEIGHT,
-    backgroundColor: 'blue'
-  },
-  headerText: {
-    color: '#fff',
-    fontSize: 14
-  }
-});
-
-export default CustomListView;
+export default SmartListView;
