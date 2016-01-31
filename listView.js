@@ -8,7 +8,8 @@ import React, {
   Text
 } from 'react-native';
 
-class SmartListView extends Component {
+class EnhancedListView extends Component {
+  static DataSource = ListView.DataSource;
   constructor(props) {
     super(props);
     this.state = {
@@ -81,4 +82,4 @@ class SmartListView extends Component {
   }
 }
 
-export default SmartListView;
+export default EnhancedListView;
