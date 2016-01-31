@@ -1,5 +1,7 @@
 # react-native-enhanced-listview
 
+_This is a work in progress_
+
 This component enhances the `ListView` with additional behavior that is not currently supported.
 
 - Scroll to a section by a sectionId
