@@ -15,6 +15,7 @@ const ROW_HEIGHT = 50;
 const HEADER_HEIGHT = 20;
 
 class CustomListView extends Component {
+  static DataSource = ListView.DataSource; // backward compatable usage with ListVieww
   constructor(props) {
     super(props);
     var ds = new ListView.DataSource({
