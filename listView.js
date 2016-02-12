@@ -8,19 +8,25 @@ import React, {
   Text
 } from 'react-native';
 
+// arbitrarily large distance to pre-render all sections for measurements
+const RENDER_AHEAD_DISTANCE = 1000000;
+
 class EnhancedListView extends Component {
   static DataSource = ListView.DataSource;
   constructor(props) {
     super(props);
     this.state = {
-      sectionOffsets: {},
+      sections: [],
       rowOffsets: {},
       currentSection: null
     };
   }
   scrollToSection(sectionId) {
-    if (this.listView && this.state.sectionOffsets[sectionId]) {
-      this.listView.getScrollResponder().scrollTo(this.state.sectionOffsets[sectionId]);
+    if (this.listView) {
+      var section = this.state.sections.find((section) => section.section === sectionId);
+      if (section) {
+        this.listView.getScrollResponder().scrollTo(section.offset);
+      }
     }
   }
   scrollToRow(sectionId, rowId) {
@@ -29,7 +35,23 @@ class EnhancedListView extends Component {
     }
   }
   onSectionHeaderLayout(sectionId, event) {
-    this.state.sectionOffsets[sectionId] = event.nativeEvent.layout.y;
+    var offset = event.nativeEvent.layout.y;
+    var sections = this.state.sections.filter(section => section.section !== sectionId);
+
+    sections.push({
+      offset,
+      section: sectionId
+    });
+    sections = sections.sort((a, b) => {
+      if (a.offset < b.offset) {
+        return -1;
+      } else if (a.offset > b.offset) {
+        return 1;
+      }
+      return 0;
+    });
+
+    this.state.sections = sections;
     this.setState(this.state);
   }
   onRowLayout(sectionId, rowId, event) {
@@ -59,11 +81,12 @@ class EnhancedListView extends Component {
     var offset = event.nativeEvent.contentOffset.y;
     var section;
 
-    for (let sectionId in this.state.sectionOffsets) {
-      if (this.state.sectionOffsets[sectionId] <= offset) {
-        section = sectionId;
+    this.state.sections.forEach(currentSection => {
+      if (currentSection.offset <= offset) {
+        section = currentSection.section;
       }
-    }
+    });
+
     if (section && this.state.currentSection !== section) {
       this.state.currentSection = section;
       this.setState(this.state);
@@ -74,6 +97,8 @@ class EnhancedListView extends Component {
   }
   render() {
     return <ListView
+      scrollRenderAheadDistance={RENDER_AHEAD_DISTANCE}
+      scrollEventThrottle={1}
       {...this.props}
       onScroll={this.onScroll.bind(this)}
       ref={component => this.listView = component}
