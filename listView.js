@@ -11,6 +11,12 @@ import React, {
 // arbitrarily large distance to pre-render all sections for measurements
 const RENDER_AHEAD_DISTANCE = 1000000;
 
+const scrollOffset = y => ({
+  y,
+  x: 0,
+  animated: true
+});
+
 class EnhancedListView extends Component {
   static DataSource = ListView.DataSource;
   constructor(props) {
@@ -25,13 +31,13 @@ class EnhancedListView extends Component {
     if (this.listView) {
       var section = this.state.sections.find((section) => section.section === sectionId);
       if (section) {
-        this.listView.getScrollResponder().scrollTo(section.offset);
+        this.listView.getScrollResponder().scrollTo(scrollOffset(section.offset));
       }
     }
   }
   scrollToRow(sectionId, rowId) {
     if (this.listView && this.state.rowOffsets[sectionId] && this.state.rowOffsets[sectionId][rowId]) {
-      this.listView.getScrollResponder().scrollTo(this.state.rowOffsets[sectionId][rowId]);
+      this.listView.getScrollResponder().scrollTo(scrollOffset(this.state.rowOffsets[sectionId][rowId]));
     }
   }
   onSectionHeaderLayout(sectionId, event) {
