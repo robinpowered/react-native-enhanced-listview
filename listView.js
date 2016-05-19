@@ -3,6 +3,7 @@
 import React, {
   Component,
   ListView,
+  PropTypes,
   StyleSheet,
   View,
   Text
@@ -13,6 +14,15 @@ const RENDER_AHEAD_DISTANCE = 1000000;
 
 class EnhancedListView extends Component {
   static DataSource = ListView.DataSource;
+  static propTypes = {
+    ...ListView.propTypes,
+    onSectionChanged: PropTypes.func
+  };
+  static defaultProps = {
+    // arbitrarily large distance to pre-render all sections for measurements
+    scrollRenderAheadDistance: 1000000,
+    scrollEventThrottle: 1
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -96,14 +106,15 @@ class EnhancedListView extends Component {
     }
   }
   render() {
-    return <ListView
-      scrollRenderAheadDistance={RENDER_AHEAD_DISTANCE}
-      scrollEventThrottle={1}
-      {...this.props}
-      onScroll={this.onScroll.bind(this)}
-      ref={component => this.listView = component}
-      renderRow={this.renderRow.bind(this)}
-      renderSectionHeader={this.renderSectionHeader.bind(this)}/>
+    return (
+      <ListView
+        {...this.props}
+        ref={component => this.listView = component}
+        onScroll={this.onScroll.bind(this)}
+        renderRow={this.renderRow.bind(this)}
+        renderSectionHeader={this.renderSectionHeader.bind(this)}
+      />
+    );
   }
 }
 
