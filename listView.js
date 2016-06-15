@@ -2,8 +2,10 @@
 
 import React, {
   Component,
+  PropTypes
+} from 'react';
+import {
   ListView,
-  PropTypes,
   StyleSheet,
   View,
   Text

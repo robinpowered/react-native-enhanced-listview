@@ -16,7 +16,8 @@
     "listview"
   ],
   "peerDependencies": {
-    "react-native": ">=0.20.0"
+    "react-native": ">=0.25.1",
+    "react": ">=15.0.2"
   },
   "author": "Atticus White <contact@atticuswhite.com> (http://atticuswhite.com/)",
   "license": "MIT",
