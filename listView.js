@@ -2,9 +2,12 @@
 
 import React, {
   Component,
+  PropTypes
+} from 'react';
+import {
   ListView,
-  PropTypes,
   StyleSheet,
+  ScrollView,
   View,
   Text
 } from 'react-native';
@@ -27,7 +30,8 @@ class EnhancedListView extends Component {
   static defaultProps = {
     // arbitrarily large distance to pre-render all sections for measurements
     scrollRenderAheadDistance: 1000000,
-    scrollEventThrottle: 1
+    scrollEventThrottle: 1,
+    renderScrollComponent: props => <ScrollView {...props} />
   };
   constructor(props) {
     super(props);
