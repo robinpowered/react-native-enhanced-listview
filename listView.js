@@ -35,28 +35,29 @@ class EnhancedListView extends Component {
   };
   constructor(props) {
     super(props);
-    this.state = {
-      sections: [],
-      rowOffsets: {},
-      currentSection: null
-    };
+
+    // this data should never trigger a render pass, so it stays out of state.
+    this.sections = [];
+    this.rowOffsets = {};
+    this.currentSection = null;
   }
   scrollToSection(sectionId) {
     if (this.listView) {
-      var section = this.state.sections.find((section) => section.section === sectionId);
+      var section = this.sections.find((section) => section.section === sectionId);
       if (section) {
         this.listView.getScrollResponder().scrollTo(scrollOffset(section.offset));
       }
     }
   }
   scrollToRow(sectionId, rowId) {
-    if (this.listView && this.state.rowOffsets[sectionId] && this.state.rowOffsets[sectionId][rowId]) {
-      this.listView.getScrollResponder().scrollTo(scrollOffset(this.state.rowOffsets[sectionId][rowId]));
+    if (this.listView && this.rowOffsets[sectionId] && this.rowOffsets[sectionId][rowId]) {
+      this.listView.getScrollResponder().scrollTo(scrollOffset(this.rowOffsets[sectionId][rowId]));
     }
   }
+
   onSectionHeaderLayout(sectionId, event) {
     var offset = event.nativeEvent.layout.y;
-    var sections = this.state.sections.filter(section => section.section !== sectionId);
+    var sections = this.sections.filter(section => section.section !== sectionId);
 
     sections.push({
       offset,
@@ -71,15 +72,13 @@ class EnhancedListView extends Component {
       return 0;
     });
 
-    this.state.sections = sections;
-    this.setState(this.state);
+    this.sections = sections;
   }
   onRowLayout(sectionId, rowId, event) {
-    if (!this.state.rowOffsets[sectionId]) {
-      this.state.rowOffsets[sectionId] = {};
+    if (!this.rowOffsets[sectionId]) {
+      this.rowOffsets[sectionId] = {};
     }
-    this.state.rowOffsets[sectionId][rowId] = event.nativeEvent.layout.y;
-    this.setState(this.state);
+    this.rowOffsets[sectionId][rowId] = event.nativeEvent.layout.y;
   }
   renderSectionHeader(sectionData, sectionId) {
     return React.cloneElement(this.props.renderSectionHeader(sectionData, sectionId), {
@@ -101,15 +100,14 @@ class EnhancedListView extends Component {
     var offset = event.nativeEvent.contentOffset.y;
     var section;
 
-    this.state.sections.forEach(currentSection => {
+    this.sections.forEach(currentSection => {
       if (currentSection.offset <= offset) {
         section = currentSection.section;
       }
     });
 
-    if (section && this.state.currentSection !== section) {
-      this.state.currentSection = section;
-      this.setState(this.state);
+    if (section && this.currentSection !== section) {
+      this.currentSection = section;
       if (this.props.onSectionChanged) {
         this.props.onSectionChanged(section);
       }
