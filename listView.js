@@ -28,10 +28,10 @@ class EnhancedListView extends Component {
     onSectionChanged: PropTypes.func
   };
   static defaultProps = {
+    ...ListView.defaultProps,
     // arbitrarily large distance to pre-render all sections for measurements
     scrollRenderAheadDistance: 1000000,
-    scrollEventThrottle: 1,
-    renderScrollComponent: props => <ScrollView {...props} />
+    scrollEventThrottle: 1
   };
   constructor(props) {
     super(props);
